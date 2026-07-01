@@ -5,6 +5,9 @@ from pathlib import Path
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
+from storage import save_result
+from vision import analyze_image
+
 WATCH_FOLDER = Path(__file__).resolve().parent.parent / "watch_folder"
 PROCESSED_FOLDER = WATCH_FOLDER / "processed"
 
@@ -20,6 +23,16 @@ class ImageHandler(PatternMatchingEventHandler):
     def on_created(self, event):
         src_path = Path(event.src_path)
         print(src_path.name)
+
+        try:
+            record = analyze_image(str(src_path))
+        except Exception as exc:
+            print(f"error analyzing {src_path.name}: {exc}")
+            return
+
+        print(f"fill_level: {record['fill_level']}")
+        save_result(record)
+
         shutil.move(str(src_path), str(PROCESSED_FOLDER / src_path.name))
 
 

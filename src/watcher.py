@@ -19,21 +19,33 @@ class ImageHandler(PatternMatchingEventHandler):
             ignore_directories=True,
             case_sensitive=False,
         )
+        self._in_progress = set()
 
     def on_created(self, event):
         src_path = Path(event.src_path)
-        print(src_path.name)
+
+        # Duplicate filesystem events for the same file are common (e.g. a
+        # writer that creates then finalizes a file in separate steps), so
+        # skip anything already handled or currently being handled.
+        if src_path in self._in_progress or not src_path.exists():
+            return
+        self._in_progress.add(src_path)
 
         try:
-            record = analyze_image(str(src_path))
-        except Exception as exc:
-            print(f"error analyzing {src_path.name}: {exc}")
-            return
+            print(src_path.name)
 
-        print(f"fill_level: {record['fill_level']}")
-        save_result(record)
+            try:
+                record = analyze_image(str(src_path))
+            except Exception as exc:
+                print(f"error analyzing {src_path.name}: {exc}")
+                return
 
-        shutil.move(str(src_path), str(PROCESSED_FOLDER / src_path.name))
+            print(f"fill_level: {record['fill_level']}")
+            save_result(record)
+
+            shutil.move(str(src_path), str(PROCESSED_FOLDER / src_path.name))
+        finally:
+            self._in_progress.discard(src_path)
 
 
 def main():

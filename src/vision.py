@@ -5,7 +5,7 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv()
-
+# ******* USE LOCAL HOST FOR RUNNING FRUIT BOT ON THE SAME MACHINE AS OLLAMA. USE IP+PORT FOR REMOTE HOSTS. *******
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3.5:9b")
 OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY")
@@ -15,7 +15,8 @@ FILL_LEVELS = ("full", "partial", "empty")
 PROMPT = (
     "You are looking at a photo of a fruit bin. Classify how full the bin "
     "is using exactly one of these three words: full, partial, empty. "
-    "Respond with only that single word."
+    "It is imperative to respond with only that single word, "
+    "no acknowldgement of understanding."
 )
 
 

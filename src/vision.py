@@ -34,7 +34,7 @@ def analyze_image(image_path):
             "stream": False,
         },
         headers=headers,
-        timeout=60,
+        timeout=180,
     )
     response.raise_for_status()
     raw_response = response.json()["response"]

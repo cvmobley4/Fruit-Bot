@@ -41,7 +41,12 @@ class ImageHandler(PatternMatchingEventHandler):
                 return
 
             print(f"fill_level: {record['fill_level']}")
-            save_result(record)
+
+            try:
+                save_result(record)
+            except Exception as exc:
+                print(f"error saving {src_path.name}: {exc}")
+                return
 
             shutil.move(str(src_path), str(PROCESSED_FOLDER / src_path.name))
         finally:

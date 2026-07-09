@@ -1,3 +1,4 @@
 watchdog
 requests
 python-dotenv
+supabase

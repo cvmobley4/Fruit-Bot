@@ -2,3 +2,4 @@ watchdog
 requests
 python-dotenv
 supabase
+Pillow

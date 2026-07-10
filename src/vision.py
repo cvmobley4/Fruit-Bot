@@ -1,14 +1,18 @@
 import base64
+import io
 import os
 
 import requests
 from dotenv import load_dotenv
+from PIL import Image
 
 load_dotenv()
 # ******* USE LOCAL HOST FOR RUNNING FRUIT BOT ON THE SAME MACHINE AS OLLAMA. USE IP+PORT FOR REMOTE HOSTS. *******
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3.5:9b")
 OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY")
+
+MAX_DIMENSION = 1024
 
 FILL_LEVELS = ("full", "partial", "empty")
 
@@ -20,9 +24,17 @@ PROMPT = (
 )
 
 
+def _resized_image_bytes(image_path):
+    with Image.open(image_path) as img:
+        img = img.convert("RGB")
+        img.thumbnail((MAX_DIMENSION, MAX_DIMENSION))
+        buffer = io.BytesIO()
+        img.save(buffer, format="JPEG", quality=85)
+        return buffer.getvalue()
+
+
 def analyze_image(image_path):
-    with open(image_path, "rb") as f:
-        image_b64 = base64.b64encode(f.read()).decode("utf-8")
+    image_b64 = base64.b64encode(_resized_image_bytes(image_path)).decode("utf-8")
 
     headers = {"Authorization": f"Bearer {OLLAMA_API_KEY}"} if OLLAMA_API_KEY else {}
     response = requests.post(

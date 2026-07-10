@@ -36,7 +36,10 @@ def analyze_image(image_path):
         headers=headers,
         timeout=180,
     )
-    response.raise_for_status()
+    if not response.ok:
+        raise RuntimeError(
+            f"Ollama request failed ({response.status_code}): {response.text}"
+        )
     raw_response = response.json()["response"]
 
     return {
